@@ -1,0 +1,14 @@
+# Specify the path of your text file
+file_path = r"C:\Users\Lenovo\Desktop\example.txt"
+
+# Open and read the file
+with open(file_path, "r") as file:
+    text = file.read()
+
+# Split text into words
+words = text.split()
+
+# Count words
+word_count = len(words)
+
+print("Number of words in the file:", word_count)
