@@ -1,0 +1,68 @@
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# ---------------------------------------
+# 1. Load the heart dataset
+# ---------------------------------------
+df = pd.read_csv(r"C:\Users\Lenovo\Desktop\heart.csv")
+print("=== DATA LOADED ===")
+print(df.head())
+print(df.info())
+
+# ---------------------------------------
+# 2. Define X (features) and y (target)
+# ---------------------------------------
+# Target column in Heart dataset = "target"
+X = df.drop("target", axis=1)
+y = df["target"]
+
+# ---------------------------------------
+# 3. Train–test split
+# ---------------------------------------
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42, stratify=y
+)
+
+# ---------------------------------------
+# 4. Feature scaling
+# ---------------------------------------
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+# ---------------------------------------
+# 5. Train Logistic Regression model
+# ---------------------------------------
+model = LogisticRegression(max_iter=1000)
+model.fit(X_train, y_train)
+
+# ---------------------------------------
+# 6. Make predictions
+# ---------------------------------------
+y_pred = model.predict(X_test)
+
+# ---------------------------------------
+# 7. Evaluate the model
+# ---------------------------------------
+print("\n=== ACCURACY ===")
+print(accuracy_score(y_test, y_pred))
+
+print("\n=== CLASSIFICATION REPORT ===")
+print(classification_report(y_test, y_pred))
+
+print("\n=== CONFUSION MATRIX ===")
+cm = confusion_matrix(y_test, y_pred)
+print(cm)
+
+# Plot heatmap
+plt.figure(figsize=(6,4))
+sns.heatmap(cm, annot=True, cmap="Blues", fmt="d")
+plt.title("Logistic Regression - Heart Disease Confusion Matrix")
+plt.xlabel("Predicted")
+plt.ylabel("Actual")
+plt.show()
