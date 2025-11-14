@@ -1,21 +1,44 @@
 import numpy as np
 from scipy import stats
 
-# Sample data (example: customer call minutes)
+# Sample data
 sample = np.array([15, 18, 22, 19, 17, 21, 20, 16, 18, 19])
 
-# Known population mean (μ0)
-population_mean = 20
+# Known population mean (H0)
+mu0 = 20
 
-# Perform one-sample t-test
-t_stat, p_value = stats.ttest_1samp(sample, population_mean)
+# ---------- MANUAL CALCULATIONS ----------
+n = len(sample)
 
-print("Sample Mean:", np.mean(sample))
-print("Population Mean:", population_mean)
-print("\nT-statistic:", t_stat)
-print("P-value:", p_value)
+# 1. Sample Mean
+sample_mean = np.mean(sample)
 
-# Conclusion (alpha = 0.05)
+# 2. Sample Standard Deviation (Bessel corrected, ddof=1)
+sample_std = np.sqrt(np.sum((sample - sample_mean)**2) / (n - 1))
+
+# 3. Standard Error (SE)
+standard_error = sample_std / np.sqrt(n)
+
+# 4. T-statistic
+t_stat = (sample_mean - mu0) / standard_error
+
+# 5. Degrees of freedom
+df = n - 1
+
+# 6. Two-tailed p-value (manual using t-distribution)
+p_value = 2 * stats.t.sf(abs(t_stat), df)
+
+# ---------- OUTPUT ----------
+print("Sample      :", sample)
+print("n           :", n)
+print("Sample Mean :", sample_mean)
+print("Sample Std  :", sample_std)
+print("Std Error   :", standard_error)
+print("T-statistic :", t_stat)
+print("Degrees of freedom:", df)
+print("P-value     :", p_value)
+
+# Decision at alpha = 0.05
 alpha = 0.05
 if p_value < alpha:
     print("\nConclusion: Reject H0 — The sample mean is significantly different.")
