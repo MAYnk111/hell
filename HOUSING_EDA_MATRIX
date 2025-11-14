@@ -1,0 +1,96 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+# -----------------------------------------------
+# 1. Load Dataset
+# -----------------------------------------------
+df = pd.read_csv(r"C:/Users/Lenovo/Desktop/housing.csv")
+
+print("=== FIRST 5 ROWS ===")
+print(df.head())
+
+print("\n=== DATA INFO ===")
+print(df.info())
+
+print("\n=== SUMMARY STATISTICS ===")
+print(df.describe())
+
+print("\n=== MISSING VALUES ===")
+print(df.isna().sum())
+
+# -----------------------------------------------
+# 2. Clean Missing Values
+# -----------------------------------------------
+# Fill missing bedrooms with median
+df['total_bedrooms'] = df['total_bedrooms'].fillna(df['total_bedrooms'].median())
+
+print("\n=== AFTER HANDLING MISSING VALUES ===")
+print(df.isna().sum())
+
+# -----------------------------------------------
+# 3. Clean Categorical Column (Optional)
+# -----------------------------------------------
+# Convert ocean_proximity to numeric dummy variables
+df_cleaned = pd.get_dummies(df, columns=['ocean_proximity'], drop_first=True)
+
+print("\n=== CLEANED DATA (HEAD) ===")
+print(df_cleaned.head())
+
+# -----------------------------------------------
+# 4. Compute Correlation Matrix (Numeric Only)
+# -----------------------------------------------
+corr = df_cleaned.corr()
+
+print("\n=== CORRELATION MATRIX ===")
+print(corr)
+
+# -----------------------------------------------
+# 5. Visualize Heatmap (Matplotlib only)
+# -----------------------------------------------
+plt.figure(figsize=(12, 8))
+plt.imshow(corr, cmap='coolwarm', interpolation='nearest')
+plt.colorbar()
+plt.xticks(range(len(corr.columns)), corr.columns, rotation=90)
+plt.yticks(range(len(corr.columns)), corr.columns)
+plt.title("Correlation Heatmap of Housing Dataset")
+plt.show()
+
+# -----------------------------------------------
+# 6. Additional EDA Visualizations
+# -----------------------------------------------
+
+# Histogram of median house value
+plt.figure(figsize=(8,5))
+plt.hist(df['median_house_value'], bins=50, edgecolor='black')
+plt.title("Distribution of Median House Value")
+plt.xlabel("Median House Value")
+plt.ylabel("Frequency")
+plt.grid(True)
+plt.show()
+
+# Boxplot of key numerical features
+plt.figure(figsize=(10,6))
+plt.boxplot(df[['median_income','total_rooms','population','households']].values)
+plt.xticks([1,2,3,4], ['Median Income','Total Rooms','Population','Households'])
+plt.title("Boxplot of Selected Features")
+plt.grid(True)
+plt.show()
+
+# Scatter Plot: Median Income vs House Value
+plt.figure(figsize=(7,5))
+plt.scatter(df['median_income'], df['median_house_value'], alpha=0.5)
+plt.xlabel("Median Income")
+plt.ylabel("Median House Value")
+plt.title("Median Income vs House Value")
+plt.grid(True)
+plt.show()
+
+# Scatter Plot: House Age vs House Value
+plt.figure(figsize=(7,5))
+plt.scatter(df['housing_median_age'], df['median_house_value'], alpha=0.5, color='green')
+plt.xlabel("Housing Median Age")
+plt.ylabel("Median House Value")
+plt.title("House Age vs House Price")
+plt.grid(True)
+plt.show()
