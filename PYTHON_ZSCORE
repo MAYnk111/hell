@@ -1,0 +1,37 @@
+import pandas as pd
+import numpy as np
+from scipy import stats
+
+# -----------------------------
+# 1. Load your dataset
+# -----------------------------
+df = pd.read_csv("/mnt/data/your_file.csv")   # <-- change file name
+print("=== ORIGINAL DATA ===")
+print(df.head())
+print("Shape:", df.shape)
+
+# -----------------------------
+# 2. Select numeric columns only
+# -----------------------------
+num_cols = df.select_dtypes(include=['int64', 'float64']).columns
+print("\nNumeric columns:", list(num_cols))
+
+# -----------------------------
+# 3. Compute Z-scores
+# -----------------------------
+z_scores = np.abs(stats.zscore(df[num_cols], nan_policy='omit'))
+
+# -----------------------------
+# 4. Identify outliers (Z > 3)
+# -----------------------------
+outlier_mask = (z_scores > 3).any(axis=1)
+print("\nTotal Outliers Found:", outlier_mask.sum())
+
+# -----------------------------
+# 5. Remove outliers
+# -----------------------------
+df_clean = df[~outlier_mask].reset_index(drop=True)
+
+print("\n=== CLEANED DATAFRAME ===")
+print(df_clean.head())
+print("New Shape:", df_clean.shape)
