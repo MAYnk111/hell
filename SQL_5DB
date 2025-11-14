@@ -1,0 +1,55 @@
+import sqlite3
+import pandas as pd
+
+# ----------------- 1. Create a different SQLite database -----------------
+conn = sqlite3.connect("college.db")   # NEW DATABASE NAME
+cursor = conn.cursor()
+
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS student (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    age INTEGER,
+    grade TEXT,
+    marks INTEGER
+)
+""")
+
+# Clear table to avoid duplicates on re-run
+cursor.execute("DELETE FROM student")
+
+# ----------------- 2. Insert sample data -----------------
+cursor.execute("INSERT INTO student(name, age, grade, marks) VALUES('RAHUL', 21, 'A', 85)")
+cursor.execute("INSERT INTO student(name, age, grade, marks) VALUES('TINA', 22, 'B', 75)")
+cursor.execute("INSERT INTO student(name, age, grade, marks) VALUES('AMIT', 20, 'C', 65)")
+cursor.execute("INSERT INTO student(name, age, grade, marks) VALUES('PRIYA', 23, 'A', 92)")
+
+conn.commit()
+
+# ----------------- 3. Import SQL data into DataFrame -----------------
+df = pd.read_sql_query("SELECT * FROM student", conn)
+print("\n--- Original Data ---\n", df)
+
+# ----------------- 4. Perform 5 DataFrame operations -----------------
+
+# 1) Filter students with marks > 80
+op1 = df[df["marks"] > 80]
+print("\n1) Students with marks > 80:\n", op1)
+
+# 2) Sort by marks (descending)
+op2 = df.sort_values(by="marks", ascending=False)
+print("\n2) Sorted by marks (descending):\n", op2)
+
+# 3) Average marks
+op3 = df["marks"].mean()
+print("\n3) Average Marks:", op3)
+
+# 4) Count students by grade
+op4 = df["grade"].value_counts()
+print("\n4) Count by Grade:\n", op4)
+
+# 5) Add new column "Result"
+df["Result"] = df["marks"].apply(lambda x: "Pass" if x >= 75 else "Fail")
+print("\n5) Data with Result Column:\n", df)
+
+conn.close()
