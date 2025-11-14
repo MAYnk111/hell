@@ -1,0 +1,43 @@
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# ===============================
+# Load Dataset
+# ===============================
+df = pd.read_csv('/mnt/data/Orange_Telecom_Churn_Data.csv')
+
+print("=== DATA LOADED ===")
+print(df.head())
+print(df.info())
+
+# Select only numeric columns for visualization
+num_cols = df.select_dtypes(include=['int64', 'float64']).columns
+
+# ===============================
+# 1. HISTOGRAM
+# ===============================
+plt.figure(figsize=(12, 6))
+sns.histplot(df[num_cols[0]], kde=True, color='blue')
+plt.title(f"Histogram of {num_cols[0]}")
+plt.xlabel(num_cols[0])
+plt.ylabel("Frequency")
+plt.show()
+
+# ===============================
+# 2. BOX PLOT (All numeric columns)
+# ===============================
+plt.figure(figsize=(12,6))
+sns.boxplot(data=df[num_cols])
+plt.title("Boxplot of Numeric Features")
+plt.xticks(rotation=45)
+plt.show()
+
+# ===============================
+# 3. HEATMAP (Correlation Matrix)
+# ===============================
+plt.figure(figsize=(12,8))
+corr = df[num_cols].corr()
+sns.heatmap(corr, annot=True, cmap='coolwarm', linewidths=0.5)
+plt.title("Correlation Heatmap of Numeric Features")
+plt.show()
