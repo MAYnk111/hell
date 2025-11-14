@@ -1,0 +1,69 @@
+import requests
+from bs4 import BeautifulSoup
+import pandas as pd
+
+# STEP 1: Add headers (pretend to be a browser)
+headers = {
+    "User-Agent": "Mozilla/5.0"
+}
+
+url = "https://en.wikipedia.org/wiki/List_of_countries_and_dependencies_by_population"
+response = requests.get(url, headers=headers)
+
+soup = BeautifulSoup(response.text, "html.parser")
+
+# STEP 2: find wikitable
+table = soup.find("table", {"class": "wikitable"})
+
+rows = table.find_all("tr")
+
+data = []
+for row in rows:
+    cols = row.find_all(["th","td"])
+    cols = [c.get_text(strip=True) for c in cols]
+    data.append(cols)
+
+# STEP 3: Create DataFrame
+df = pd.DataFrame(data[1:], columns=data[0])
+
+# STEP 4: Rename columns to human-friendly names
+df = df.rename(columns={
+    "Location": "Country",
+    "% ofworld": "World_Percentage",
+    "Source (official or fromtheUnited Nations)": "Source"
+})
+
+# Clean numeric column
+df["Population"] = df["Population"].str.replace(",", "").astype(int)
+
+# Add new column if not present
+if "Population_in_Millions" not in df.columns:
+    df["Population_in_Millions"] = (df["Population"] / 1_000_000).round(2)
+
+print("\n--- CLEANED DATA ---")
+print(df.head())
+
+# =========================================
+#              5 OPERATIONS
+# =========================================
+
+# 1) Top 5 populated countries
+print("\n1) Top 5 populated countries:")
+print(df.sort_values("Population", ascending=False).head())
+
+# 2) Countries with population > 100 million
+print("\n2) Countries with population > 100 million:")
+print(df[df["Population"] > 100_000_000])
+
+# 3) Summary statistics
+print("\n3) Summary of Population:")
+print(df["Population"].describe())
+
+# 4) Add new column: Population Rank
+df["Rank"] = df["Population"].rank(ascending=False).astype(int)
+print("\n4) Population Rank added:")
+print(df.head())
+
+# 5) First 10 countries alphabetically
+print("\n5) First 10 countries alphabetically:")
+print(df.sort_values("Country").head(10))
