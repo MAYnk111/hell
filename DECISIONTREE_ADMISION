@@ -1,0 +1,70 @@
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# ----------------------------------------
+# 1. Load the dataset
+# ----------------------------------------
+df = pd.read_csv('C:/Users/Lenovo/Desktop/Admission_Predict.csv')
+print("=== DATA LOADED ===")
+print(df.head())
+
+# ----------------------------------------
+# 2. Preprocessing
+# ----------------------------------------
+# Rename label column if needed
+if 'Chance of Admit ' in df.columns:
+    df.rename(columns={'Chance of Admit ': 'Chance'}, inplace=True)
+
+# Convert Chance (0–1) to binary: 1 = admitted, 0 = not admitted
+df['Admit'] = (df['Chance'] >= 0.5).astype(int)
+
+# Drop unnecessary columns
+if 'Serial No.' in df.columns:
+    df = df.drop('Serial No.', axis=1)
+
+# Features & target
+X = df.drop(['Chance', 'Admit'], axis=1)
+y = df['Admit']
+
+# ----------------------------------------
+# 3. Train–test split
+# ----------------------------------------
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42, stratify=y
+)
+
+# ----------------------------------------
+# 4. Train Decision Tree Classifier
+# ----------------------------------------
+model = DecisionTreeClassifier(max_depth=5, random_state=42)
+model.fit(X_train, y_train)
+
+# ----------------------------------------
+# 5. Predictions
+# ----------------------------------------
+y_pred = model.predict(X_test)
+
+# ----------------------------------------
+# 6. Evaluation
+# ----------------------------------------
+print("\n=== ACCURACY ===")
+print("Accuracy:", accuracy_score(y_test, y_pred))
+
+print("\n=== CLASSIFICATION REPORT ===")
+print(classification_report(y_test, y_pred))
+
+print("\n=== CONFUSION MATRIX ===")
+cm = confusion_matrix(y_test, y_pred)
+print(cm)
+
+# Confusion Matrix Heatmap
+plt.figure(figsize=(6,4))
+sns.heatmap(cm, annot=True, cmap='Blues', fmt='d')
+plt.xlabel("Predicted")
+plt.ylabel("Actual")
+plt.title("Decision Tree Classifier — Admission Prediction")
+plt.show()
