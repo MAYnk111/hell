@@ -1,0 +1,23 @@
+import numpy as np
+from scipy import stats
+
+# Sample data (example: customer call minutes)
+sample = np.array([15, 18, 22, 19, 17, 21, 20, 16, 18, 19])
+
+# Known population mean (μ0)
+population_mean = 20
+
+# Perform one-sample t-test
+t_stat, p_value = stats.ttest_1samp(sample, population_mean)
+
+print("Sample Mean:", np.mean(sample))
+print("Population Mean:", population_mean)
+print("\nT-statistic:", t_stat)
+print("P-value:", p_value)
+
+# Conclusion (alpha = 0.05)
+alpha = 0.05
+if p_value < alpha:
+    print("\nConclusion: Reject H0 — The sample mean is significantly different.")
+else:
+    print("\nConclusion: Fail to Reject H0 — No significant difference.")
