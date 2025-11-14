@@ -1,0 +1,68 @@
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# ---------------------------------------------
+# 1. Load Dataset
+# ---------------------------------------------
+df = pd.read_csv(r"C:/Users/Lenovo/Desktop/churn-bigml-80.csv")
+
+print("=== FIRST 5 ROWS ===")
+print(df.head())
+
+print("\n=== DATA INFO ===")
+print(df.info())
+
+print("\n=== SUMMARY STATISTICS ===")
+print(df.describe(include="all"))
+
+print("\n=== MISSING VALUES ===")
+print(df.isna().sum())
+
+# ---------------------------------------------
+# 2. CLEANING THE DATASET
+# ---------------------------------------------
+
+# Handle missing values
+# numeric: fill with median
+num_cols = df.select_dtypes(include=['int64', 'float64']).columns
+for col in num_cols:
+    df[col] = df[col].fillna(df[col].median())
+
+# categorical: fill with mode
+cat_cols = df.select_dtypes(include=['object']).columns
+for col in cat_cols:
+    df[col] = df[col].fillna(df[col].mode()[0])
+
+print("\n=== AFTER HANDLING MISSING VALUES ===")
+print(df.isna().sum())
+
+# Convert Yes/No → 1/0 (if present)
+for col in cat_cols:
+    if set(df[col].unique()) == set(["yes", "no"]) or set(df[col].unique()) == set(["Yes", "No"]):
+        df[col] = df[col].map({"yes": 1, "no": 0, "Yes": 1, "No": 0})
+
+# Convert categorical columns → dummy variables
+df_clean = pd.get_dummies(df, drop_first=True)
+
+print("\n=== CLEANED DATAFRAME (HEAD) ===")
+print(df_clean.head())
+
+# ---------------------------------------------
+# 3. CORRELATION MATRIX
+# ---------------------------------------------
+corr = df_clean.corr()
+
+print("\n=== CORRELATION MATRIX ===")
+print(corr)
+
+# ---------------------------------------------
+# 4. HEATMAP VISUALIZATION
+# ---------------------------------------------
+plt.figure(figsize=(12, 8))
+sns.heatmap(corr, cmap='coolwarm', annot=False)
+plt.title("Correlation Heatmap - Orange Telecom Churn Dataset")
+plt.show()
+
+
