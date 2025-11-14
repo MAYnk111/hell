@@ -1,0 +1,73 @@
+import pandas as pd
+import numpy as np
+
+# -----------------------------
+# 1) Load the Toyota dataset
+# -----------------------------
+df = pd.read_csv('C:/Users/Lenovo/Desktop/Toyota.csv')
+
+print("=== ORIGINAL DATA ===")
+display(df.head())
+print("Shape:", df.shape)
+print("\nMissing values:\n", df.isna().sum())
+
+
+# ==============================================
+# 2) HANDLE MISSING VALUES
+# ==============================================
+df_missing = df.copy()
+
+# Numeric and categorical columns
+num_cols = df_missing.select_dtypes(include=[np.number]).columns
+cat_cols = df_missing.select_dtypes(include=['object']).columns
+
+# Numeric → fill with median
+for col in num_cols:
+    df_missing[col] = df_missing[col].fillna(df_missing[col].median())
+
+# Categorical → fill with mode
+for col in cat_cols:
+    df_missing[col] = df_missing[col].fillna(df_missing[col].mode()[0])
+
+print("\n=== AFTER HANDLING MISSING VALUES ===")
+display(df_missing.head())
+print("Missing values now:\n", df_missing.isna().sum())
+
+
+# ==============================================
+# 3) HANDLE OUTLIERS USING IQR METHOD
+# ==============================================
+df_outliers = df_missing.copy()
+
+outlier_mask = pd.Series(False, index=df_outliers.index)
+
+for col in num_cols:
+    Q1 = df_outliers[col].quantile(0.25)
+    Q3 = df_outliers[col].quantile(0.75)
+    IQR = Q3 - Q1
+    lower = Q1 - 1.5 * IQR
+    upper = Q3 + 1.5 * IQR
+    
+    mask = (df_outliers[col] < lower) | (df_outliers[col] > upper)
+    outlier_mask = outlier_mask | mask
+
+df_outliers_cleaned = df_outliers[~outlier_mask].reset_index(drop=True)
+
+print("\n=== AFTER OUTLIER REMOVAL ===")
+display(df_outliers_cleaned.head())
+print("Shape:", df_outliers_cleaned.shape)
+
+
+# ==============================================
+# 4) REMOVE DUPLICATE ROWS
+# ==============================================
+df_final = df_outliers_cleaned.copy()
+
+duplicate_count = df_final.duplicated().sum()
+print("\nDuplicate rows found:", duplicate_count)
+
+df_final = df_final.drop_duplicates().reset_index(drop=True)
+
+print("\n=== AFTER REMOVING DUPLICATES ===")
+display(df_final.head())
+print("Shape:", df_final.shape)
