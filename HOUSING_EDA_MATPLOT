@@ -1,0 +1,77 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+# ---------------------------------------
+# 1. Load Dataset from Desktop
+# ---------------------------------------
+df = pd.read_csv(r"C:/Users/Lenovo/Desktop/housing.csv")
+
+print("=== FIRST 5 ROWS ===")
+print(df.head())
+
+print("\n=== DATA INFO ===")
+print(df.info())
+
+print("\n=== SUMMARY STATISTICS ===")
+print(df.describe())
+
+print("\n=== MISSING VALUES ===")
+print(df.isna().sum())
+
+# ---------------------------------------
+# 2. Handle missing values (simple fix)
+# ---------------------------------------
+df['total_bedrooms'] = df['total_bedrooms'].fillna(df['total_bedrooms'].median())
+
+# ---------------------------------------
+# 3. Visualizations using Matplotlib
+# ---------------------------------------
+
+# Histogram of Median House Value
+plt.figure(figsize=(8,5))
+plt.hist(df['median_house_value'], bins=50, edgecolor='black')
+plt.title("Distribution of Median House Value")
+plt.xlabel("Median House Value")
+plt.ylabel("Frequency")
+plt.grid(True)
+plt.show()
+
+# Boxplot of key numeric features
+plt.figure(figsize=(10,6))
+plt.boxplot(df[['median_income', 'total_rooms', 'population', 'households']].values)
+plt.xticks([1,2,3,4], ['median_income', 'total_rooms', 'population', 'households'])
+plt.title("Boxplot of Selected Features")
+plt.grid(True)
+plt.show()
+
+# Scatter Plot: Median Income vs House Price
+plt.figure(figsize=(7,5))
+plt.scatter(df['median_income'], df['median_house_value'], alpha=0.5)
+plt.xlabel("Median Income")
+plt.ylabel("Median House Value")
+plt.title("Median Income vs House Price")
+plt.grid(True)
+plt.show()
+
+# Scatter Plot: House Age vs House Price
+plt.figure(figsize=(7,5))
+plt.scatter(df['housing_median_age'], df['median_house_value'], alpha=0.5, color='orange')
+plt.xlabel("House Median Age")
+plt.ylabel("Median House Value")
+plt.title("House Age vs House Price")
+plt.grid(True)
+plt.show()
+
+# ---------------------------------------
+# 4. Correlation Heatmap (Matplotlib only)
+# ---------------------------------------
+corr = df.select_dtypes(include=['int64', 'float64']).corr()
+
+plt.figure(figsize=(10,8))
+plt.imshow(corr, cmap='coolwarm', interpolation='nearest')
+plt.colorbar()
+plt.xticks(range(len(corr.columns)), corr.columns, rotation=45)
+plt.yticks(range(len(corr.columns)), corr.columns)
+plt.title("Correlation Heatmap (Numeric Features Only)")
+plt.show()
