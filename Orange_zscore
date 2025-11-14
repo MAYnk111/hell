@@ -1,0 +1,39 @@
+import pandas as pd
+import numpy as np
+from scipy import stats
+
+# -----------------------------
+# 1. Load Dataset
+# -----------------------------
+df = pd.read_csv('/mnt/data/Orange_Telecom_Churn_Data.csv')
+
+print("=== ORIGINAL DATA (HEAD) ===")
+display(df.head())
+print("Shape:", df.shape)
+
+# -----------------------------
+# 2. Select numeric columns only
+# -----------------------------
+num_cols = df.select_dtypes(include=[np.number]).columns
+print("\nNumeric Columns:", list(num_cols))
+
+# -----------------------------
+# 3. Compute Z-scores
+# -----------------------------
+z_scores = np.abs(stats.zscore(df[num_cols], nan_policy='omit'))
+
+# -----------------------------
+# 4. Outlier Detection (|Z| > 3)
+# -----------------------------
+outlier_mask = (z_scores > 3).any(axis=1)
+
+print("\nTotal Outliers Found:", outlier_mask.sum())
+
+# -----------------------------
+# 5. Remove Outliers
+# -----------------------------
+df_cleaned = df[~outlier_mask].reset_index(drop=True)
+
+print("\n=== CLEANED DATAFRAME (HEAD) ===")
+display(df_cleaned.head())
+print("New Shape:", df_cleaned.shape)
