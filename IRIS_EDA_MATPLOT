@@ -1,0 +1,59 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.datasets import load_iris
+
+# ===============================
+# 1. Load the IRIS Dataset
+# ===============================
+iris = load_iris()
+df = pd.DataFrame(iris.data, columns=iris.feature_names)
+df['species'] = iris.target_names[iris.target]
+
+print("=== IRIS DATASET (HEAD) ===")
+print(df.head())
+
+# ===============================
+# 2. Basic EDA
+# ===============================
+print("\n=== DATAFRAME INFO ===")
+print(df.info())
+
+print("\n=== SUMMARY STATISTICS ===")
+print(df.describe())
+
+print("\n=== CLASS DISTRIBUTION ===")
+print(df['species'].value_counts())
+
+# ===============================
+# 3. Visualization Section
+# ===============================
+
+# --- Histogram ---
+df.hist(figsize=(10,8), edgecolor='black')
+plt.suptitle("Histogram of Iris Features", fontsize=16)
+plt.show()
+
+# --- Boxplot ---
+df.drop(columns=['species']).plot(kind='box', figsize=(10,6))
+plt.title("Boxplot of Iris Features")
+plt.show()
+
+# --- Scatter Plot (2 features) ---
+plt.figure(figsize=(7,5))
+for species in df['species'].unique():
+    subset = df[df['species'] == species]
+    plt.scatter(subset['sepal length (cm)'], subset['sepal width (cm)'], label=species)
+
+plt.xlabel("Sepal Length (cm)")
+plt.ylabel("Sepal Width (cm)")
+plt.title("Sepal Length vs Width")
+plt.legend()
+plt.show()
+
+
+# --- Correlation Heatmap ---
+plt.figure(figsize=(8,6))
+sns.heatmap(df.drop(columns=['species']).corr(), annot=True, cmap='coolwarm')
+plt.title("Correlation Heatmap of Iris Features")
+plt.show()
