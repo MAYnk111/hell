@@ -28,16 +28,7 @@ df['total_bedrooms'] = df['total_bedrooms'].fillna(df['total_bedrooms'].median()
 print("\n=== AFTER HANDLING MISSING VALUES ===")
 print(df.isna().sum())
 
-# -----------------------------------------------
-# 3. Clean Categorical Column (Optional)
-# -----------------------------------------------
-# Convert ocean_proximity to numeric dummy variables
-df_cleaned = pd.get_dummies(df, columns=['ocean_proximity'], drop_first=True)
 
-print("\n=== CLEANED DATA (HEAD) ===")
-print(df_cleaned.head())
-
-# -----------------------------------------------
 # 4. Compute Correlation Matrix (Numeric Only)
 # -----------------------------------------------
 corr = df_cleaned.corr()
