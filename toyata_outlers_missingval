@@ -35,27 +35,32 @@ print("Missing values now:\n", df_missing.isna().sum())
 
 
 # ==============================================
-# 3) HANDLE OUTLIERS USING IQR METHOD
+# 3) HANDLE OUTLIERS USING Z-SCORE METHOD
 # ==============================================
+from scipy import stats
+import numpy as np
+
 df_outliers = df_missing.copy()
 
-outlier_mask = pd.Series(False, index=df_outliers.index)
+# Select numeric columns
+num_cols = df_outliers.select_dtypes(include=['int64', 'float64']).columns
 
-for col in num_cols:
-    Q1 = df_outliers[col].quantile(0.25)
-    Q3 = df_outliers[col].quantile(0.75)
-    IQR = Q3 - Q1
-    lower = Q1 - 1.5 * IQR
-    upper = Q3 + 1.5 * IQR
-    
-    mask = (df_outliers[col] < lower) | (df_outliers[col] > upper)
-    outlier_mask = outlier_mask | mask
+# Compute absolute Z-scores
+z_scores = np.abs(stats.zscore(df_outliers[num_cols]))
 
+# Threshold for outliers
+threshold = 3   # You can use 2.5 if needed
+
+# Outlier mask (True = row has outlier)
+outlier_mask = (z_scores > threshold).any(axis=1)
+
+# Remove outlier rows
 df_outliers_cleaned = df_outliers[~outlier_mask].reset_index(drop=True)
 
-print("\n=== AFTER OUTLIER REMOVAL ===")
+print("\n=== AFTER OUTLIER REMOVAL USING Z-SCORE ===")
 display(df_outliers_cleaned.head())
 print("Shape:", df_outliers_cleaned.shape)
+
 
 
 # ==============================================
